@@ -4,7 +4,10 @@
   "private": true,
   "packageManager": "yarn@4.15.0",
   "dependencies": {
-    "external-editor": "^3.0.3"
+    "@typescript-eslint/eslint-plugin": "^8.65.0",
+    "eslint-plugin-import": "^2.32.0",
+    "external-editor": "^3.0.3",
+    "minimatch": "^10.2.6"
   },
   "resolutions": {
     "tmp": "^0.2.4"
