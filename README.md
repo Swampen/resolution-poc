@@ -6,38 +6,37 @@ update when the vulnerable transitive dependency is controlled by Yarn
 
 ## Shape of the reproduction
 
-- `external-editor@3.1.0` depends on `tmp@^0.0.33`.
+- `node-gyp@^9.0.0` depends transitively on `tar@^6.1.2`.
 - `package.json` overrides that transitive dependency with:
 
   ```json
   "resolutions": {
-    "tmp": "^0.2.4"
+    "tar": "^7.5.19"
   }
   ```
 
-- `yarn.lock` is intentionally stale and currently resolves that override to
-  vulnerable `tmp@0.2.5`.
-- `tmp@0.2.6` and later are non-vulnerable for the relevant advisory.
+- `yarn.lock` resolves the override to `tar@7.5.19`.
+- The PoC uses `tar` as the dependency Dependabot should update when a
+  security advisory affects the resolved version.
 
 ## Expected Dependabot behavior
 
-Dependabot should update the Yarn resolution/lockfile so the installed `tmp`
-version is no longer vulnerable, for example by changing `yarn.lock` from
-`tmp@0.2.5` to `tmp@0.2.7`.
+Dependabot should update `package.json#resolutions.tar` and `yarn.lock` so the
+installed `tar` version is no longer vulnerable.
 
 ## Actual behavior seen in the real repo
 
 Dependabot detects the vulnerable package and runs commands similar to:
 
 ```text
-corepack yarn up -R tmp --mode=skip-build
-corepack yarn add tmp@0.2.7 --mode=skip-build
-corepack yarn dedupe tmp --mode=skip-build
-corepack yarn remove tmp --mode=skip-build
+corepack yarn up -R tar --mode=skip-build
+corepack yarn add tar@<patched-version> --mode=skip-build
+corepack yarn dedupe tar --mode=skip-build
+corepack yarn remove tar --mode=skip-build
 ```
 
 The commands exit successfully, but the final repository state has no changed
-files because Dependabot never updates `package.json#resolutions.tmp`.
+files because Dependabot never updates `package.json#resolutions.tar`.
 
 The job then fails with:
 
@@ -51,5 +50,5 @@ No files were updated! Package manager: yarn
 Running this locally updates the lockfile as expected:
 
 ```sh
-corepack yarn up -R tmp --mode=skip-build
+corepack yarn up -R tar --mode=skip-build
 ```
